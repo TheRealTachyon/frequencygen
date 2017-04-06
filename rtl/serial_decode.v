@@ -60,7 +60,7 @@ endfunction //
 function [7:0] nibble_to_char;
     input [3:0] data;
     begin
-        nibble_to_char =  data === 4'bXXXX ? 8'h30 : (data < 4'd10) ? 8'h30 | {4'd0, data} : 8'h5f + {4'd0,data[2:0]};
+        nibble_to_char =  (data < 4'd10) ? 8'h30 | {4'd0, data} : 8'h5f + {4'd0,data[2:0]};
     end
 endfunction // convert_nibble_to_char
 

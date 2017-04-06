@@ -3,11 +3,13 @@ module freqgen_top (
 		    output OUT_CLK,
 
 			 input  RX,
-			 output TX
+			 output TX,
+			 
+			 
+			 output LED
+			 
 		    
    );
-
-localparam CLOCK_FREQ = 50000000;
    
    wire       reset_n;
    wire 		  pclk_lckd;
@@ -21,10 +23,8 @@ localparam CLOCK_FREQ = 50000000;
    
    wire 		  clk50m;
    wire 		  clkfx;
-   wire 		  clk50m_bufg;
    
-   IBUF sysclk_buf (.I(SYS_CLK), .O(clk50m));
-   BUFG clk50m_bufgbufg (.I(clk50m), .O(clk50m_bufg));
+   BUFG sysclk_buf (.I(SYS_CLK), .O(clk50m));
    OBUF outclk     (.I(clkfx), .O(OUT_CLK));
 
     // uart signals
@@ -70,7 +70,7 @@ localparam CLOCK_FREQ = 50000000;
     (
 	    .clk		(clk50m),
 	    .srst		(!reset_n),
-	    .din		(rx_data),
+	    .din		   (rx_data),
 	    .dout		(rd_data),
 	    .wr_en		(received),
 	    .rd_en		(rd_en),
@@ -98,7 +98,7 @@ localparam CLOCK_FREQ = 50000000;
    serial_decode DECODER(
 	
 			 // control lines
-			 .clk        ( clk50m_bufg ),
+			 .clk        ( clk50m),
 			 .reset_n    ( reset_n     ),
 			 // uart controls. 
 			 
@@ -125,7 +125,7 @@ localparam CLOCK_FREQ = 50000000;
    
   dcmspi dcmspi_0 (
     .RST(reset_n),          //Synchronous Reset
-    .PROGCLK(clk50m_bufg), //SPI clock
+    .PROGCLK(clk50m), //SPI clock
     .PROGDONE(progdone),   //DCM is ready to take next command
     .DFSLCKD(pclk_lckd),
     .M(pclk_M),            //DCM M value
@@ -153,11 +153,28 @@ localparam CLOCK_FREQ = 50000000;
     .STATUS(),
     .CLKIN(clk50m),
     .FREEZEDCM(1'b0),
-    .PROGCLK(clk50m_bufg),
+    .PROGCLK(clk50m),
     .PROGDATA(progdata),
     .PROGEN(progen),
     .RST(1'b0)
   );
 
+always @(posedge clk50m) begin
+	
+	if (reset_n === 1'b0) begin
+		// reset logic
+		transmit_r <= 1'b0;
+
+	end else begin
+		
+		transmit_r <= transmit;
+
+	end
+
+end
+
+assign transmit = !tx_empty & !is_transmitting & !transmit_r;
+
+assign LED = pclk_lckd;
 
 endmodule
