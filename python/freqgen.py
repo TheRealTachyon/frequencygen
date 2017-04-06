@@ -1,4 +1,4 @@
-xtal = 50E6
+xtal = 32E6
 tol = 1E4
 
 def findMD(target):
@@ -14,10 +14,11 @@ def getChecksum(packet):
     sum = 0
     for c in packet:
         sum += ord(c)
-    return ("%x02" % (sum & 0xff))[-2:]
+    
+    return ("%02x" % (sum & 0xff))[-2:]
 
 def makePacket(M,D):
-    packet = "%x%x" % (M,D)
+    packet = "%02x%02x" % (M-1,D-1)
     return "$%s#%s" % (packet,getChecksum(packet))
 
 while True:
