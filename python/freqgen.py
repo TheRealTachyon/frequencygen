@@ -21,13 +21,22 @@ def makePacket(M,D):
     packet = "%02x%02x" % (M-1,D-1)
     return "$%s#%s" % (packet,getChecksum(packet))
 
+import serial
+s = serial.Serial(port='COM5', baudrate=9600)
+
 while True:
     freq = input("Freq> ")
     f = float(freq)
     print "Calculating for frequency", f
-    M,D = findMD(f)
-    print "Using M =", M, "D =", D
-    print "Actual frequency", xtal * (float(M) / float(D))
-    print makePacket(M,D)
+    try:
+        M,D = findMD(f)
+        print "Using M =", M, "D =", D
+        print "Actual frequency", xtal * (float(M) / float(D))
+    except:
+        print "Could not calcuate a frequency for:",freq
+    try:
+        s.write(makePacket(M,D))
+    except:
+        print "Serial comms error"
     
 

@@ -124,7 +124,7 @@ module freqgen_top (
    //
    
   dcmspi dcmspi_0 (
-    .RST(reset_n),          //Synchronous Reset
+    .RST(!reset_n),          //Synchronous Reset
     .PROGCLK(clk50m), //SPI clock
     .PROGDONE(progdone),   //DCM is ready to take next command
     .DFSLCKD(pclk_lckd),
@@ -140,9 +140,9 @@ module freqgen_top (
   // DCM_CLKGEN to generate a pixel clock with a variable frequency
   //
   DCM_CLKGEN #(
-    .CLKFX_DIVIDE (21),
-    .CLKFX_MULTIPLY (31),
-    .CLKIN_PERIOD(20.000)
+    .CLKFX_DIVIDE (3),
+    .CLKFX_MULTIPLY (2),
+    .CLKIN_PERIOD(31.25)
   )
   PCLK_GEN_INST (
     .CLKFX(clkfx),
